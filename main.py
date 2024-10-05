@@ -30,8 +30,13 @@ def start(message):
 def welcome(message):
     if message.text == "Зарегистрироваться":
         bot.register_next_step_handler(message, is_russian)
-    # ToDo:
-        bot.send_message(message.chat.id, "Тут должна быть верификация пользователя по образованию, возрасту и гражданству")
+        # ToDo:
+        temp_btn_markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        temp_btn_ok = types.KeyboardButton("Понятно")
+        temp_btn_markup.add(temp_btn_ok)
+        bot.send_message(message.from_user.id,
+                         'Тут должна быть верификация пользователя по образованию, возрасту и гражданству',
+                         reply_markup=temp_btn_markup)
 
     if message.text == "Telegram-канал":
         bot.send_message(message.chat.id, "https://t.me/+ntFED2PMwUo2MDZi")
@@ -57,15 +62,27 @@ def is_russian(message):
     btn_hied_markup.add(btn_yes_hied, btn_no_hied)
     bot.send_message(message.from_user.id, 'Являетесь ли Вы гражданином Российской Федерации?',
                      reply_markup=btn_hied_markup)
+
     bot.register_next_step_handler(message, is_higher_education)
+
+
 def is_higher_education(message):
-    btn_hied_markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    btn_yes_hied = types.KeyboardButton("Да")
-    btn_no_hied = types.KeyboardButton("Нет")
-    btn_hied_markup.add(btn_yes_hied, btn_no_hied)
-    bot.send_message(message.from_user.id, 'Имеется ли у Вас оконченное высшее техническое образование?',
-                     reply_markup=btn_hied_markup)
-    bot.register_next_step_handler(message, is_aged)
+    if message.text == "Да":
+        btn_hied_markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        btn_yes_hied = types.KeyboardButton("Да")
+        btn_no_hied = types.KeyboardButton("Нет")
+        btn_hied_markup.add(btn_yes_hied, btn_no_hied)
+        bot.send_message(message.from_user.id, 'Имеется ли у Вас оконченное высшее техническое образование?',
+                         reply_markup=btn_hied_markup)
+        bot.register_next_step_handler(message, is_aged)
+    elif message.text == "Нет":
+        bot.send_message(message.from_user.id,
+                         'Извините, наличие гражданства Российской Федерации является обязательным условием для отбора в научную роту')
+        bot.register_next_step_handler(message, is_russian)
+    else:
+        bot.send_message(message.from_user.id, 'Я Вас не понял(')
+        bot.register_next_step_handler(message, is_russian)
+
 
 def is_aged(message):
     btn_age_markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
@@ -79,15 +96,14 @@ def is_aged(message):
     btn_eight = types.KeyboardButton("8")
     btn_nine = types.KeyboardButton("9")
     btn_zero = types.KeyboardButton("0")
-    btn_age_markup.add(btn_one, btn_two, btn_three, btn_four, btn_five, btn_six, btn_seven, btn_eight, btn_nine, btn_zero)
+    btn_age_markup.add(btn_one, btn_two, btn_three, btn_four, btn_five, btn_six, btn_seven, btn_eight, btn_nine,
+                       btn_zero)
     btn_remove = telebot.types.ReplyKeyboardRemove()
     bot.send_message(message.from_user.id, 'Укажите Ваш возраст',
                      reply_markup=btn_age_markup)
-    #ToDo:
+    # ToDo:
     bot.register_next_step_handler(message, get_source)
     bot.send_message(message.from_user.id, 'Здесь должна вызываться цифровая клавиатура', reply_markup=btn_remove)
-
-
 
 
 # def get_name(message):
